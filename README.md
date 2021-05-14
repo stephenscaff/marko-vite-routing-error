@@ -30,7 +30,7 @@ import { Router } from "express";
 import indexPage from "./pages/index";
 import productTemplate from "./pages/product/template.marko";
 
-export default Router({ mergeParams: true })
+export default Router()
   // .set("views", path.join(__dirname, "views"))
   .get("/", indexPage)
   // dynamic route
@@ -94,6 +94,6 @@ Works at /product/123
 
 ```
 .get("/product/:id", (req, res) => {
-  res.send("user " + req.params.id);
+  res.send("product " + req.params.id);
 })
 ```
