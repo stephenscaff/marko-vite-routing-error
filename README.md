@@ -1,31 +1,28 @@
-# Marko Vite Routing Error Test
+# Marko Vite Express Routing Error Test Case
 
 ## Getting Started
 
 ```bash
 npm install
 npm run dev
-```
-
-## Production Build
-
-```bash
 npm run build
 npm start
 ```
 
 ## The Project
 
-This project is based on the `vite-express` `Marko.js` example, installed via the `marko-cli` (`npm init @marko myapp --template vite-express`)
-The app uses `@marko/vite` (Marko's Vite.js plugin), and `@marko/express`.
+This project uses Marko's `vite-express` example, which includes `@marko/vite` and `@marko/express`.
 
 ## The Issue
 
-When using `@marko/vite` and `@marko/express` plugins, as in the `vite-express` example, adding dynamic nested routes (ie: `.get("/product/:id", ...)`) causes a directory error `ENOENT: no such file or directory error...`.
+With `@marko/vite` and `@marko/express`, dynamic nested routes (ie: `.get("/product/:id", ...)`) cause a directory error `ENOENT: no such file or directory error...`.
 
-The route actually renders, and the the `req.params` value passes, but all pages assets fail because the loader is looking in a directory named after the defined route name.
+The route successfully renders, and `req.params` values pass, but page assets fail. It seems that the loader is looking in a directory named after the defined route name.
+Meaning, if a route is defined as `/product/:id`, with the template housed at `src/pages/product`, the loader is searching `/product/src/pages/product/template.marko`
 
-**Take this Routing**
+## Example
+
+**This Project's Routing Setup**
 
 ```
 // src/index.js
@@ -42,7 +39,7 @@ export default Router({ mergeParams: true })
   });
 ```
 
-**With this products template**
+**The Simplified Template**
 
 ```
 // src/pages/product/template.marko
@@ -58,13 +55,15 @@ export default Router({ mergeParams: true })
 </app-layout>
 ```
 
-If you go to `http://localhost:3000/product/123`, `input.id` outputs `123`, but the pages also throws the following error
+`npm run dev` and visit `http://localhost:3000/product/123`
 
-``ENOENT: no such file or directory, open '/product/src/pages/product/template.marko'```
+`input.id` outputs `123`, but the pages also throws the following error
+
+`ENOENT: no such file or directory, open '/product/src/pages/product/template.marko'`
 
 ![Vite Error Screenshot](/error-screenshot.png)
 
-So, no other assets load, due to an incorrect directory lookup, as the route name, `product`, is being used in the lookup.
+So, no other assets load, as the lookup is using the route name in `product` in the path.
 
 ## Notes
 
@@ -76,7 +75,20 @@ So, no other assets load, due to an incorrect directory lookup, as the route nam
 });
 ```
 
+**1. Nested static routes work as expected.**
+
+```
+.get("/product", productPage);
+```
+
 **2. The same nested dynamic routing works with the `webpack-express` example**
+
+```
+Works at /product/123
+.get("/product/:id", (req, res) => {
+  res.marko(productTemplate, req.params);
+});
+```
 
 **3. If we just `send()`, the route works.**
 
